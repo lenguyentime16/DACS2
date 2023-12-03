@@ -29,6 +29,57 @@ let getTopTeacherHome = (limitInput) => {
     })
 }
 
+
+let getAllTeachers = () => {
+    return new Promise( async (resolve,reject) => {
+        try {
+            let teachers = await db.User.findAll({
+                where: {roleId: 'R2'},
+                attributes: {
+                    exclude: ['password','image']
+                }
+            })
+
+            resolve({
+                errCode:0,
+                data: teachers
+            })
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
+
+let saveDetailInforTeacher = (inputData) => {
+    return new Promise(async (resolve,reject) => {
+        try {
+            if(!inputData.teacherId || !inputData.contentHTML || !inputData.contentMarkdown) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing parameter'
+                })
+            } else {
+                await db.Markdown.create({
+                    contentHTML: inputData.contentHTML,
+                    contentMarkdown:inputData.contentMarkdown,
+                    description: inputData.description,
+                    teacherId:inputData.teacherId
+
+                })
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'Save infor teacher succeed!'
+                })
+            }
+        } catch(e) {
+            reject(e);
+        }
+    })
+}
 module.exports = {
-    getTopTeacherHome: getTopTeacherHome
+    getTopTeacherHome: getTopTeacherHome,
+    getAllTeachers:getAllTeachers,
+    saveDetailInforTeacher:saveDetailInforTeacher
+
 }

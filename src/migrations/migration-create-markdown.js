@@ -22,16 +22,16 @@ module.exports = {
         allowNull: true,
         type: Sequelize.TEXT('long')
       },
-      doctorId: {
-        allowNull: false,
+      teacherId: {
+        allowNull: true,
         type: Sequelize.INTEGER
       },
       specialtyId: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.INTEGER
       },
       classroomId: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.INTEGER
       },
 
