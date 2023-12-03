@@ -27,6 +27,7 @@ let initWebRoutes = (app) => {
     router.get('/api/get-all-teachers',teacherController.getAllTeachers);
 
     router.post('/api/save-infor-teachers',teacherController.postInforTeachers);
+    router.get('/api/get-detail-teacher-by-id',teacherController.getDetailTeacherById);
     return app.use("/", router);
 } 
 
