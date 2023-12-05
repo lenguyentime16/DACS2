@@ -1,18 +1,18 @@
 import db from '../models/index';
 
 let getTopTeacherHome = (limitInput) => {
-    return new Promise( async (resolve,reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             let users = await db.User.findAll({
                 limit: limitInput,
-                where: {roleId :'R2'},
-                order: [['createdAt','DESC']], 
+                where: { roleId: 'R2' },
+                order: [['createdAt', 'DESC']],
                 attribute: {
                     exclude: ['password']
                 },
                 include: [
-                    {model: db.Allcode, as: 'positionData', attribute: ['valueEn','valueVi']},
-                    {model: db.Allcode, as: 'genderData', attribute: ['valueEn','valueVi']}
+                    { model: db.Allcode, as: 'positionData', attribute: ['valueEn', 'valueVi'] },
+                    { model: db.Allcode, as: 'genderData', attribute: ['valueEn', 'valueVi'] }
                 ],
                 raw: true,
                 nest: true
@@ -23,7 +23,7 @@ let getTopTeacherHome = (limitInput) => {
                 data: users
 
             })
-        } catch(e) {
+        } catch (e) {
             reject(e)
         }
     })
@@ -31,103 +31,117 @@ let getTopTeacherHome = (limitInput) => {
 
 
 let getAllTeachers = () => {
-    return new Promise( async (resolve,reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             let teachers = await db.User.findAll({
-                where: {roleId: 'R2'},
+                where: { roleId: 'R2' },
                 attributes: {
-                    exclude: ['password','image']
+                    exclude: ['password', 'image']
                 }
             })
 
             resolve({
-                errCode:0,
+                errCode: 0,
                 data: teachers
             })
-        } catch(e) {
+        } catch (e) {
             reject(e)
         }
     })
 }
 
 let saveDetailInforTeacher = (inputData) => {
-    return new Promise(async (resolve,reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            if(!inputData.teacherId || !inputData.contentHTML || !inputData.contentMarkdown) {
+            if (!inputData.teacherId || !inputData.contentHTML || !inputData.contentMarkdown || !inputData.action) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing parameter'
                 })
             } else {
-                await db.Markdown.create({
-                    contentHTML: inputData.contentHTML,
-                    contentMarkdown:inputData.contentMarkdown,
-                    description: inputData.description,
-                    teacherId:inputData.teacherId
+                if (inputData.action === 'CREATE') {
+                    await db.Markdown.create({
+                        contentHTML: inputData.contentHTML,
+                        contentMarkdown: inputData.contentMarkdown,
+                        description: inputData.description,
+                        teacherId: inputData.teacherId
 
-                })
+                    })
+                } else if (inputData.action === 'EDIT') {
+                    let teacherMarkdown = await db.Markdown.findOne({
+                        where: { teacherId: inputData.teacherId },
+                        raw: false,
+                    })
+                    if (teacherMarkdown) {
+                        teacherMarkdown.contentHTML = inputData.contentHTML;
+                        teacherMarkdown.contentMarkdown = inputData.contentMarkdown;
+                        teacherMarkdown.description = inputData.description;
+                        await teacherMarkdown.save();
+                    }
+                }
+
 
                 resolve({
                     errCode: 0,
                     errMessage: 'Save infor teacher succeed!'
                 })
             }
-        } catch(e) {
+        } catch (e) {
             reject(e);
         }
     })
 }
 
 let getDetailTeacherById = (inputId) => {
-    return new Promise( async (resolve,reject) => {
-            try {
-                if (!inputId) {
-                    resolve({
-                        errCode: 1,
-                        errMessage: 'Missing required parameter!'
-                    })
-                } else {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputId) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter!'
+                })
+            } else {
 
-                    let data = await db.User.findOne({
-                        where: {
-                            id: inputId
+                let data = await db.User.findOne({
+                    where: {
+                        id: inputId
+                    },
+                    attributes: {
+                        exclude: ['password']
+                    },
+                    include: [
+                        {
+                            model: db.Markdown,
+                            attributes: ['description', 'contentHTML', 'contentMarkdown']
                         },
-                        attributes: {
-                            exclude: ['password']
-                        },
-                        include: [
-                            {
-                                model: db.Markdown,
-                                attributes: ['description', 'contentHTML', 'contentMarkdown']
-                            },
 
-                            {model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi']},
-                        ],
-                        raw: false,
-                        nest: true
-                    })
+                        { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'] },
+                    ],
+                    raw: false,
+                    nest: true
+                })
 
-                    if (data && data.image) {
-                        data.image = new Buffer(data.image, 'base64').toString('binary');
-                    }
-
-                    if (!data) data = {}
-
-                    resolve ({
-                        errCode: 0,
-                        data: data
-
-                    })
+                if (data && data.image) {
+                    data.image = new Buffer(data.image, 'base64').toString('binary');
                 }
-            } catch(e) {
-                reject(e)
+
+                if (!data) data = {}
+
+                resolve({
+                    errCode: 0,
+                    data: data
+
+                })
             }
+        } catch (e) {
+            reject(e)
+        }
     })
 }
 module.exports = {
     getTopTeacherHome: getTopTeacherHome,
-    getAllTeachers:getAllTeachers,
-    saveDetailInforTeacher:saveDetailInforTeacher,
-    getDetailTeacherById:getDetailTeacherById
+    getAllTeachers: getAllTeachers,
+    saveDetailInforTeacher: saveDetailInforTeacher,
+    getDetailTeacherById: getDetailTeacherById
 
 }
