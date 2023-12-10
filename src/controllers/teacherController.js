@@ -57,9 +57,40 @@ let getDetailTeacherById = async (req,res) => {
     }
 }
 
+let bulkCreateSchedule = async (req,res) => {
+    try {
+        let infor = await teacherService.bulkCreateSchedule(req.body);
+        return res.status(200).json({
+            infor
+        })
+    } catch(e) {
+        console.log(e);
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from the server'
+        })
+    }
+}
+
+let getScheduleByDate = async (req, res) => {
+    try {
+        let infor = await teacherService.getScheduleByDate(req.query.teacherId, req.query.date)
+        return res.status(200).json(
+            infor
+        )
+    } catch(e) {
+        console.log(e);
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from the server'
+        })
+    }
+}
 module.exports = {
     getTopTeacherHome:getTopTeacherHome,
     getAllTeachers:getAllTeachers,
     postInforTeachers:postInforTeachers,
-    getDetailTeacherById:getDetailTeacherById
+    getDetailTeacherById:getDetailTeacherById,
+    bulkCreateSchedule:bulkCreateSchedule,
+    getScheduleByDate:getScheduleByDate
 }
