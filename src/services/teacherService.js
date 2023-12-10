@@ -1,4 +1,8 @@
 import db from '../models/index';
+require('dotenv').config();
+import _ from 'lodash';
+
+const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
 let getTopTeacherHome = (limitInput) => {
     return new Promise(async (resolve, reject) => {
@@ -138,10 +142,93 @@ let getDetailTeacherById = (inputId) => {
         }
     })
 }
+
+let bulkCreateSchedule = (data) => {
+    return new Promise( async (resolve, reject) => {
+        try {
+            if (!data.arrSchedule || !data.teacherId || !data.formatedDate) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter !'
+                })
+            } else {
+                let schedule = data.arrSchedule
+                if(schedule && schedule.length >0) {
+
+                    schedule = schedule.map(item => {
+                        item.maxNumber = MAX_NUMBER_SCHEDULE;
+                        return item;
+                    })
+                }
+
+                let existing = await db.Schedule.findAll({
+                    where: {teacherId: data.teacherId, date: data.formatedDate},
+                    attributes: ['timeType', 'date', 'teacherId', 'maxNumber'],
+                    raw: true
+                });
+
+                if (existing && existing.length >0 ) {
+                    existing = existing.map(item => {
+                        item.date = new Date(item.date).getTime();
+                        return item;    
+                    })
+                }
+
+                let toCreate = _.differenceWith(schedule, existing, (a , b) => {
+                    return a.timeType === b.timeType && a.date === b.date;
+                });
+
+                if (toCreate && toCreate.length > 0) {
+                    await db.Schedule.bulkCreate(schedule)
+                }
+               
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK'
+                });
+            }
+        } catch(e) {
+            reject(e);
+        }
+    })
+}
+
+let getScheduleByDate = (teacherId, date) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!teacherId || !date) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing required parameters'
+                })
+            } else {
+                let dataSchedule = await db.Schedule.findAll({
+                    where: {
+                        teacherId : teacherId,
+                        date: date
+                    }
+                })
+
+                if (!dataSchedule) dataSchedule = []
+
+                resolve({
+                    errCode: 0,
+                    dataSchedule: dataSchedule
+                })
+            }
+
+
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     getTopTeacherHome: getTopTeacherHome,
     getAllTeachers: getAllTeachers,
     saveDetailInforTeacher: saveDetailInforTeacher,
-    getDetailTeacherById: getDetailTeacherById
+    getDetailTeacherById: getDetailTeacherById,
+    bulkCreateSchedule:bulkCreateSchedule,
+    getScheduleByDate:getScheduleByDate
 
 }
