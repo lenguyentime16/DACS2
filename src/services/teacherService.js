@@ -57,12 +57,17 @@ let getAllTeachers = () => {
 let saveDetailInforTeacher = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.teacherId || !inputData.contentHTML || !inputData.contentMarkdown || !inputData.action) {
+            if (!inputData.teacherId || !inputData.contentHTML ||
+                !inputData.contentMarkdown || !inputData.action ||
+                !inputData.selectedPrice || !inputData.selectedPayment ||
+                !inputData.selectedProvince || !inputData.nameClassRoom ||
+                !inputData.addressClassRoom || !inputData.note) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing parameter'
                 })
             } else {
+                // upsert to markdown table
                 if (inputData.action === 'CREATE') {
                     await db.Markdown.create({
                         contentHTML: inputData.contentHTML,
@@ -82,6 +87,39 @@ let saveDetailInforTeacher = (inputData) => {
                         teacherMarkdown.description = inputData.description;
                         await teacherMarkdown.save();
                     }
+                }
+
+                //upsert to Teacher_infor table
+                let teacherInfor = await db.Teacher_Infor.findOne({
+                    where: {
+                        teacherId: inputData.teacherId,
+                    },
+                    raw: false
+                })
+                if (teacherInfor) {
+                    //update
+                    teacherInfor.teacherId = inputData.teacherId;
+                    teacherInfor.priceId = inputData.selectedPrice;
+                    teacherInfor.provinceId = inputData.selectedProvince;
+                    teacherInfor.paymentId = inputData.selectedPayment;
+
+                    teacherInfor.nameClassRoom = inputData.nameClassRoom;
+                    teacherInfor.addressClassRoom = inputData.addressClassRoom;
+                    teacherInfor.note = inputData.note;
+                    await teacherInfor.save();
+                } else {
+                    //create
+                    await db.Teacher_Infor.create({
+                        teacherId: inputData.teacherId,
+                        priceId: inputData.selectedPrice,
+                        provinceId: inputData.selectedProvince,
+                        paymentId: inputData.selectedPayment,
+
+                        nameClassRoom: inputData.nameClassRoom,
+                        addressClassRoom: inputData.addressClassRoom,
+                        note: inputData.note,
+
+                    })
                 }
 
 
@@ -144,7 +182,7 @@ let getDetailTeacherById = (inputId) => {
 }
 
 let bulkCreateSchedule = (data) => {
-    return new Promise( async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             if (!data.arrSchedule || !data.teacherId || !data.formatedDate) {
                 resolve({
@@ -153,7 +191,7 @@ let bulkCreateSchedule = (data) => {
                 })
             } else {
                 let schedule = data.arrSchedule
-                if(schedule && schedule.length >0) {
+                if (schedule && schedule.length > 0) {
 
                     schedule = schedule.map(item => {
                         item.maxNumber = MAX_NUMBER_SCHEDULE;
@@ -162,26 +200,26 @@ let bulkCreateSchedule = (data) => {
                 }
 
                 let existing = await db.Schedule.findAll({
-                    where: {teacherId: data.teacherId, date: data.formatedDate},
+                    where: { teacherId: data.teacherId, date: data.formatedDate },
                     attributes: ['timeType', 'date', 'teacherId', 'maxNumber'],
                     raw: true
                 });
 
 
-                let toCreate = _.differenceWith(schedule, existing, (a , b) => {
+                let toCreate = _.differenceWith(schedule, existing, (a, b) => {
                     return a.timeType === b.timeType && +a.date === +b.date;
                 });
 
                 if (toCreate && toCreate.length > 0) {
                     await db.Schedule.bulkCreate(toCreate)
                 }
-               
+
                 resolve({
                     errCode: 0,
                     errMessage: 'OK'
                 });
             }
-        } catch(e) {
+        } catch (e) {
             reject(e);
         }
     })
@@ -198,10 +236,10 @@ let getScheduleByDate = (teacherId, date) => {
             } else {
                 let dataSchedule = await db.Schedule.findAll({
                     where: {
-                        teacherId : teacherId,
+                        teacherId: teacherId,
                         date: date
                     },
-                    
+
                     include: [
 
                         { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] },
@@ -219,7 +257,7 @@ let getScheduleByDate = (teacherId, date) => {
             }
 
 
-        } catch(e) {
+        } catch (e) {
             reject(e)
         }
     })
@@ -229,7 +267,7 @@ module.exports = {
     getAllTeachers: getAllTeachers,
     saveDetailInforTeacher: saveDetailInforTeacher,
     getDetailTeacherById: getDetailTeacherById,
-    bulkCreateSchedule:bulkCreateSchedule,
-    getScheduleByDate:getScheduleByDate
+    bulkCreateSchedule: bulkCreateSchedule,
+    getScheduleByDate: getScheduleByDate
 
 }
