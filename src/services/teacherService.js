@@ -273,12 +273,51 @@ let getScheduleByDate = (teacherId, date) => {
         }
     })
 }
+
+let getExtraInforTeacherById = (idInput) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!idInput) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing required parameters'
+                })
+            } else {
+                let data = await db.Teacher_Infor.findOne({
+                    where: {
+                        teacherId: idInput
+                    },
+                    attributes: {
+                        exclude: ['id','teacherId']
+                    },
+                    include: [
+                        {model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        {model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        {model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if(!data) data ={};
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
+            }
+        } 
+        catch(e) {
+            reject(e)
+        }
+    })
+}
 module.exports = {
     getTopTeacherHome: getTopTeacherHome,
     getAllTeachers: getAllTeachers,
     saveDetailInforTeacher: saveDetailInforTeacher,
     getDetailTeacherById: getDetailTeacherById,
     bulkCreateSchedule: bulkCreateSchedule,
-    getScheduleByDate: getScheduleByDate
+    getScheduleByDate: getScheduleByDate,
+    getExtraInforTeacherById:getExtraInforTeacherById
 
 }
