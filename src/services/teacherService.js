@@ -158,6 +158,17 @@ let getDetailTeacherById = (inputId) => {
                         },
 
                         { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'] },
+                        {
+                            model: db.Teacher_Infor,
+                            attributes: {
+                                exclude: ['id','teacherId']
+                            },
+                            include: [
+                                {model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                {model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                {model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                            ]
+                        },
                     ],
                     raw: false,
                     nest: true
