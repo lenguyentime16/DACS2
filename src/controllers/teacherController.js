@@ -101,6 +101,22 @@ let getExtraInforTeacherById = async (req, res) => {
         })
     }
 }
+
+let getProfileTeacherById = async (req, res) => {
+    try {
+        let infor = await teacherService.getProfileTeacherById(req.query.teacherId)
+        return res.status(200).json(
+            infor
+        )
+    } catch(e) {
+        console.log(e);
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from the server'
+        })
+    }
+}
+
 module.exports = {
     getTopTeacherHome:getTopTeacherHome,
     getAllTeachers:getAllTeachers,
@@ -108,5 +124,6 @@ module.exports = {
     getDetailTeacherById:getDetailTeacherById,
     bulkCreateSchedule:bulkCreateSchedule,
     getScheduleByDate:getScheduleByDate,
-    getExtraInforTeacherById:getExtraInforTeacherById
+    getExtraInforTeacherById:getExtraInforTeacherById,
+    getProfileTeacherById:getProfileTeacherById,
 }

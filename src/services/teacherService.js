@@ -5,7 +5,7 @@ import _ from 'lodash';
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
 let getTopTeacherHome = (limitInput) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {     
         try {
             let users = await db.User.findAll({
                 limit: limitInput,
@@ -161,12 +161,12 @@ let getDetailTeacherById = (inputId) => {
                         {
                             model: db.Teacher_Infor,
                             attributes: {
-                                exclude: ['id','teacherId']
+                                exclude: ['id', 'teacherId']
                             },
                             include: [
-                                {model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
-                                {model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
-                                {model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
                             ]
                         },
                     ],
@@ -288,29 +288,88 @@ let getExtraInforTeacherById = (idInput) => {
                         teacherId: idInput
                     },
                     attributes: {
-                        exclude: ['id','teacherId']
+                        exclude: ['id', 'teacherId']
                     },
                     include: [
-                        {model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
-                        {model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
-                        {model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                        { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                        { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
                     ],
                     raw: false,
                     nest: true
                 })
 
-                if(!data) data ={};
+                if (!data) data = {};
                 resolve({
                     errCode: 0,
                     data: data
                 })
             }
-        } 
-        catch(e) {
+        }
+        catch (e) {
             reject(e)
         }
     })
 }
+
+let getProfileTeacherById = (inputId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!inputId) {
+                resolve({
+                    errCode: -1,
+                    errMessage: 'Missing required parameters'
+                })
+            } else {
+                let data = await db.User.findOne({
+                    where: {
+                        id: inputId
+                    },
+                    attributes: {
+                        exclude: ['password']
+                    },
+                    include: [
+                        {
+                            model: db.Markdown,
+                            attributes: ['description', 'contentHTML', 'contentMarkdown']
+                        },
+                        
+                        { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'] },
+                        {
+                            model: db.Teacher_Infor,
+                            attributes: {
+                                exclude: ['id', 'teacherId']
+                            },
+                            include: [
+                                { model: db.Allcode, as: 'priceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'provinceTypeData', attributes: ['valueEn', 'valueVi'] },
+                                { model: db.Allcode, as: 'paymentTypeData', attributes: ['valueEn', 'valueVi'] },
+                            ]
+                        },
+                    ],
+                    raw: false,
+                    nest: true
+                })
+
+                if (data && data.image) {
+                    data.image = new Buffer(data.image, 'base64').toString('binary');
+                }
+
+                if (!data) data = {}
+
+                resolve({
+                    errCode: 0,
+                    data: data
+
+                })
+            }
+
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopTeacherHome: getTopTeacherHome,
     getAllTeachers: getAllTeachers,
@@ -318,6 +377,7 @@ module.exports = {
     getDetailTeacherById: getDetailTeacherById,
     bulkCreateSchedule: bulkCreateSchedule,
     getScheduleByDate: getScheduleByDate,
-    getExtraInforTeacherById:getExtraInforTeacherById
+    getExtraInforTeacherById: getExtraInforTeacherById,
+    getProfileTeacherById: getProfileTeacherById,
 
 }
