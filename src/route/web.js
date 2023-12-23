@@ -2,6 +2,7 @@ import express from "express";
 import homeController from "../controllers/homeController";
 import userController from "../controllers/userController";
 import teacherController from"../controllers/teacherController";
+import studentController from "../controllers/studentController";
 
 let router = express.Router();
 
@@ -32,6 +33,9 @@ let initWebRoutes = (app) => {
     router.get('/api/get-schedule-teacher-by-date', teacherController.getScheduleByDate);
     router.get('/api/get-extra-infor-teacher-by-id', teacherController.getExtraInforTeacherById);
     router.get('/api/get-profile-teacher-by-id', teacherController.getProfileTeacherById);
+    router.post('/api/student-book-appointment',studentController.postBookAppointment);
+
+
     return app.use("/", router);
 } 
 
