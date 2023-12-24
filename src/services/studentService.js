@@ -37,7 +37,7 @@ let postBookAppointment = (data) => {
                 }
                 resolve({
                     errCode: 0,
-                    errMessage: 'Save infor '
+                    errMessage: 'Save infor student succed!'
                 })
             }
 
