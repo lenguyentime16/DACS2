@@ -1,5 +1,6 @@
 import db from '../models/index';
 require('dotenv').config();
+import emailService from './emailService';
 
 let postBookAppointment = (data) => {
     return new Promise(async (resolve, reject) => {
@@ -11,6 +12,14 @@ let postBookAppointment = (data) => {
 
                 })
             } else {
+                await emailService.sendSimpleEmail({
+                    receiverEmail: data.email,
+                    userName: 'Lê Công Nguyên',
+                    time: data.timeType,
+                    teacherName: 'Bình đẹp trai',
+                    redirectLink:'http://localhost:3000/detail-teacher/20'
+                });
+                
                 //upsert student
                 let user = await db.User.findOrCreate({
                     where: { email: data.email },
@@ -31,9 +40,7 @@ let postBookAppointment = (data) => {
                             date: data.date,
                             timeType: data.timeType,
                         }
-
                     })
-
                 }
                 resolve({
                     errCode: 0,
