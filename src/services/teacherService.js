@@ -254,6 +254,8 @@ let getScheduleByDate = (teacherId, date) => {
                     include: [
 
                         { model: db.Allcode, as: 'timeTypeData', attributes: ['valueEn', 'valueVi'] },
+
+                        { model: db.User, as: 'teacherData', attributes: ['firstName', 'lastName'] },
                     ],
                     raw: false,
                     nest: true
