@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     };
     Teacher_Infor.init({
         teacherId: DataTypes.INTEGER,
+        specialtyId: DataTypes.INTEGER,
+        classroomId: DataTypes.INTEGER,
         priceId: DataTypes.STRING,
         provinceId: DataTypes.STRING,
         paymentId: DataTypes.STRING,
