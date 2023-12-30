@@ -53,7 +53,64 @@ let getAllSpecialty = () => {
     })
 }
 
+let getDetailSpecialtyById = (inputId, location) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if(!inputId || !location) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing Parameter'
+                })
+            } else {
+                let data = await db.Specialty.findOne({
+                    where: {
+                        id: inputId
+                    },
+                    attributes: ['descriptionHTML', 'descriptionMarkdown'],
+                })
+
+                if (data) {
+                    let teacherSpecialty = [];
+                    if (location === 'ALL') {
+                        teacherSpecialty = await db.Teacher_Infor.findAll({
+                            where: {
+                                specialtyId: inputId,
+                            },
+                            attributes: ['teacherId',  'provinceId'],
+                        })
+                    } else {
+
+                        //find by location
+
+                        teacherSpecialty = await db.Teacher_Infor.findAll({
+                            where: {
+                                specialtyId: inputId,
+                                provinceId: location
+                            },
+                            attributes: ['teacherId',  'provinceId'],
+                        })
+                    }
+
+                    data.teacherSpecialty = teacherSpecialty;
+                    console.log('check', teacherSpecialty)
+
+                } else data = {};
+
+                resolve({
+                    errMessage: 'OK',
+                    errCode: 0,
+                    data
+                })
+            }
+        } catch(e) {
+
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     createSpecialty:createSpecialty,
-    getAllSpecialty:getAllSpecialty
+    getAllSpecialty:getAllSpecialty,
+    getDetailSpecialtyById:getDetailSpecialtyById
 }
