@@ -56,8 +56,8 @@ let getAllTeachers = () => {
 
 let checkRequiredFields = (inputData) => {
     let arrFields = ['teacherId', 'contentHTML', 'contentMarkdown', 'action', 
-                    'selectedPrice', 'selectedPayment', 'selectedProvince', 'nameClinic',
-                    'addressClinic', 'note', 'specialtyId'
+                    'selectedPrice', 'selectedPayment', 'selectedProvince', 'nameClassRoom',
+                    'addressClassRoom', 'note', 'specialtyId'
 ]
 
 let isValid = true;
