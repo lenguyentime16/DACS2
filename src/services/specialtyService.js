@@ -66,22 +66,20 @@ let getDetailSpecialtyById = (inputId, location) => {
                     where: {
                         id: inputId
                     },
+                    raw: true,
                     attributes: ['descriptionHTML', 'descriptionMarkdown'],
                 })
 
                 if (data) {
-                    let teacherSpecialty = [];
+                    let teacherSpecialty = {};
                     if (location === 'ALL') {
                         teacherSpecialty = await db.Teacher_Infor.findAll({
-                            where: {
-                                specialtyId: inputId,
-                            },
+                            where: {specialtyId: inputId},
                             attributes: ['teacherId',  'provinceId'],
                         })
                     } else {
 
                         //find by location
-
                         teacherSpecialty = await db.Teacher_Infor.findAll({
                             where: {
                                 specialtyId: inputId,
@@ -92,14 +90,14 @@ let getDetailSpecialtyById = (inputId, location) => {
                     }
 
                     data.teacherSpecialty = teacherSpecialty;
-                    console.log('check', teacherSpecialty)
+                    
 
                 } else data = {};
 
                 resolve({
                     errMessage: 'OK',
                     errCode: 0,
-                    data
+                    data: data
                 })
             }
         } catch(e) {
