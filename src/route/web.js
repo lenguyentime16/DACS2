@@ -4,6 +4,7 @@ import userController from "../controllers/userController";
 import teacherController from"../controllers/teacherController";
 import studentController from "../controllers/studentController";
 import specialtyController from "../controllers/specialtyController";
+import classroomController from "../controllers/classroomController";
 
 let router = express.Router();
 
@@ -37,9 +38,14 @@ let initWebRoutes = (app) => {
 
     router.post('/api/student-book-appointment',studentController.postBookAppointment);
     router.post('/api/verify-book-appointment',studentController.postVerifyBookAppointment);
+
     router.post('/api/create-new-specialty',specialtyController.createSpecialty);
     router.get('/api/get-all-specialty',specialtyController.getAllSpecialty);
     router.get('/api/get-detail-specialty-by-id',specialtyController.getDetailSpecialtyById);
+
+    router.post('/api/create-new-classroom',classroomController.createClassroom);
+    // router.get('/api/get-all-specialty',specialtyController.getAllSpecialty);
+    // router.get('/api/get-detail-specialty-by-id',specialtyController.getDetailSpecialtyById);
 
     return app.use("/", router);
 } 
