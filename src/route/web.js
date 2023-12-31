@@ -44,8 +44,8 @@ let initWebRoutes = (app) => {
     router.get('/api/get-detail-specialty-by-id',specialtyController.getDetailSpecialtyById);
 
     router.post('/api/create-new-classroom',classroomController.createClassroom);
-    // router.get('/api/get-all-specialty',specialtyController.getAllSpecialty);
-    // router.get('/api/get-detail-specialty-by-id',specialtyController.getDetailSpecialtyById);
+    router.get('/api/get-all-classroom',classroomController.getAllClassroom);
+    router.get('/api/get-detail-classroom-by-id',classroomController.getDetailClassroomById);
 
     return app.use("/", router);
 } 
