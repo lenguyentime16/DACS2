@@ -117,6 +117,21 @@ let getProfileTeacherById = async (req, res) => {
     }
 }
 
+let getListStudentForTeacher = async (req, res) => {
+    try {
+        let infor = await teacherService.getProfileTeacherById(req.query.teacherId, req.query.date)
+        return res.status(200).json(
+            infor
+        )
+    } catch(e) {
+        console.log(e);
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from the server'
+        })
+    }
+}
+
 module.exports = {
     getTopTeacherHome:getTopTeacherHome,
     getAllTeachers:getAllTeachers,
@@ -126,4 +141,5 @@ module.exports = {
     getScheduleByDate:getScheduleByDate,
     getExtraInforTeacherById:getExtraInforTeacherById,
     getProfileTeacherById:getProfileTeacherById,
+    getListStudentForTeacher:getListStudentForTeacher
 }
