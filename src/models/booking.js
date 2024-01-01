@@ -13,6 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Booking.belongsTo(models.User, 
             { foreignKey: 'studentId', targetKey: 'id', as: 'studentData'})
+      Booking.belongsTo(models.Allcode, 
+            { foreignKey: 'timeType', targetKey: 'keyMap', as: 'timeTypeDataStudent'})
     }
   };
   Booking.init({

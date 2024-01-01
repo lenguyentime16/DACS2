@@ -407,25 +407,35 @@ let getListStudentForTeacher = (teacherId, date) => {
             } else {
                 let data = await db.Booking.findAll({
                     where: {
-                        statusId: 'S1',
+                        statusId: 'S2',
                         teacherId: teacherId,
                         date: date
                     },
                     include: [
                         {
-                            model: db.User, as: 'patientData',
+                            model: db.User, as: 'studentData',
                             attributes: ['email', 'firstName', 'address', 'gender'],
                             include: [
                                 {
-                                    model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi']
+                            model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi']
                                 }
                             ]
                         },
+                        {
+                            model: db.Allcode, as: 'timeTypeDataStudent', attributes: ['valueEn', 'valueVi']
+                        }
                     ],
                     raw: false,
                     nest: true
                 })  
+
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
             }
+
+           
         } catch(e) {
             reject(e);
         }

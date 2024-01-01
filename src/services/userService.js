@@ -22,12 +22,12 @@ let handleUserLogin = (email, password) => {
             if (isExist) {
                 //user already exist
                 let user = await db.User.findOne({
-                    attributes: ['email', 'roleId', 'password','firstName','lastName'],
+                    attributes: ['id','email', 'roleId', 'password','firstName','lastName'],
                     where: { email: email },
                     raw: true,
 
                 });
-                console.log(user)
+                console.log(user);
                 if (user) {
                     // Cách 1: dùng asynchronous (bất đồng bộ)
                     let check = await bcrypt.compare(password, user.password);
