@@ -1,6 +1,7 @@
 import db from '../models/index';
 require('dotenv').config();
 import _ from 'lodash';
+import emailService from '../services/emailService'
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE;
 
@@ -442,6 +443,45 @@ let getListStudentForTeacher = (teacherId, date) => {
     })
 }
 
+let sendDocument = (data) => {
+    return new Promise (async (resolve, reject) => {
+        try {
+            if (!data.email || !data.teacherId || !data.studentId || !data.timeType) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing parameters'
+                })
+            } else {
+                //update student status
+                let appointment = await db.Booking.findOne({
+                    where: {
+                        teacherId: data.teacherId,
+                        studentId: data.studentId,
+                        timeType: data.timeType,
+                        statusId: 'S2'
+                    },
+                    raw: false
+                })
+
+                if (appointment) {
+                    appointment.statusId = 'S3'
+                    await appointment.save();
+                }
+                // send email document
+                await emailService.sendAttachment(data)
+                resolve({
+                    errCode: 0,
+                    errMessage: 'OK'
+                })
+            }
+
+           
+        } catch(e) {
+            reject(e);
+        }
+    })
+}
+
 module.exports = {
     getTopTeacherHome: getTopTeacherHome,
     getAllTeachers: getAllTeachers,
@@ -451,6 +491,7 @@ module.exports = {
     getScheduleByDate: getScheduleByDate,
     getExtraInforTeacherById: getExtraInforTeacherById,
     getProfileTeacherById: getProfileTeacherById,
-    getListStudentForTeacher:getListStudentForTeacher
+    getListStudentForTeacher:getListStudentForTeacher,
+    sendDocument:sendDocument
 
 }

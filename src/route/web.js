@@ -37,6 +37,7 @@ let initWebRoutes = (app) => {
     router.get('/api/get-profile-teacher-by-id', teacherController.getProfileTeacherById);
 
     router.get('/api/get-list-student-for-teacher', teacherController.getListStudentForTeacher);
+    router.post('/api/send-document', teacherController.sendDocument);
 
     router.post('/api/student-book-appointment',studentController.postBookAppointment);
     router.post('/api/verify-book-appointment',studentController.postVerifyBookAppointment);

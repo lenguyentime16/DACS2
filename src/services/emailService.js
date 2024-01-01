@@ -65,7 +65,78 @@ let getBodyHTMLEmail = (dataSend) => {
     return result;
 }
 
+let getBodyHTMLEmailDocument = (dataSend) => {
+    let result = ''
+    if(dataSend.language === 'vi') {
+        result = 
+        `
+        <h3>Xin chào ${dataSend.studentName} !</h3>
+        <p>Chúng tôi đã ghi nhận rằng bạn đã đăng kí lịch học trên website của chúng tôi</p>
+        <p>Tài liệu / hoá đơn thanh toán được gửi trong file đính kèm.</p>
+        
+        <div>Xin chân thành cảm ơn</div>
+
+        `
+    }
+    if(dataSend.language === 'en') {
+        result = 
+        `
+        <h3>Dear ${dataSend.studentName} !</h3>
+        <p>We have recorded that you have registered for a class schedule on our website</p>
+        <p>Payment documents/invoices are sent in attachments</p>
+       
+        <p> </p>
+        <div>Thank you!</div>
+
+        `
+    }
+
+    return result;
+} 
+
+let sendAttachment = async (dataSend) => {
+    return new Promise( async (resolve, reject) => {
+
+    try {
+
+   
+    let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+            user: process.env.EMAIL_APP,
+            pass: process.env.EMAIL_APP_PASSWORD,
+        },
+        
+    });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+            from: '"Tutoring Center"', // sender address
+            to: dataSend.email, // list of receivers
+            subject: "Kết quả đăng kí lớp học & Tài liệu", // Subject line
+            html: getBodyHTMLEmailDocument(dataSend),
+            attachments: [
+                { // encoded string as an attachment
+                    filename: `document-${dataSend.studentId}-${new Date().getTime()}.png`,
+                    content: dataSend.imgBase64.split("base64,")[1],
+                    encoding: 'base64'
+                }
+            ],
+            
+        });
+        console.log('check infor send email: ')
+        resolve();
+    } catch(e) {
+        reject(e)
+    }
+    }) 
+}
+
 
 module.exports = {
-    sendSimpleEmail: sendSimpleEmail
+    sendSimpleEmail: sendSimpleEmail,
+    sendAttachment:sendAttachment
 }
